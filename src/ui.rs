@@ -1,6 +1,6 @@
 use crate::MaBO;
 use crate::egui;
-use crate::egui::{RichText, Color32};
+use crate::egui::{RichText, Color32, Align};
 
 
 impl MaBO {
@@ -8,7 +8,10 @@ impl MaBO {
 		egui::SidePanel::left("infos").show(ctx, |ui| {
 			ui.label("Méthodologie");
 			ui.label("Exemple");
-			ui.label("Code source");
+			ui.hyperlink_to(
+				"Code source", 
+				"https://github.com/WanderingPenwing/CaMu",
+			);
 		});
 	}
 	
@@ -40,21 +43,26 @@ impl MaBO {
 				
 				ui.separator();
 				
+				let mut scroll_bottom = false;
+				
 				if ui.add(egui::Button::new("Calcul")).clicked() {
 					self.equation.compute();
+					scroll_bottom = true;
 				}
 				
 				
 				if let Some(ref impact) = self.equation.impact {
-					ui.label("");
-					ui.label("Impact du produit mutualisé dans la catégorie d'impact choisie, par an : ");
-					ui.label(format!("Im = {}",impact));
+					ui.label(format!("\nImpact du produit mutualisé dans la catégorie d'impact choisie, par an :\nIm = {}",impact));
 				}
 				
 				if let Some(ref improvement) = self.equation.improvement {
-					ui.label("");
-					ui.label("Gain de la mutualisation par rapport à l'utilisation usuelle : ");
-					ui.label(format!("G% = {} %",improvement));
+					ui.label(format!("\nGain de la mutualisation par rapport à l'utilisation usuelle :\nG% = {} %",improvement));
+				}
+				
+				ui.label("\n\n");
+				
+				if scroll_bottom {
+					ui.scroll_to_cursor(Some(Align::BOTTOM));
 				}
 			});
 		});

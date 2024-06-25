@@ -81,8 +81,8 @@ impl Equation {
 		let mut values: Vec<f32> = vec![];
 		let mut invalid: bool = false;
 		
-		for i in 0..self.variables.len() {
-			if let Some(value) = self.variables[i].evaluate() {
+		for variable in self.variables.iter_mut() {
+			if let Some(value) = variable.evaluate() {
 				values.push(value);
 			} else {
 				invalid = true;
@@ -93,10 +93,19 @@ impl Equation {
 			return;
 		}
 		
-		let usage = values[0]*(values[1]/100.0)*values[6];
-		let repair = values[4]*values[5]/values[3];
-		let other = values[0]*(1.0-values[1]/100.0)*values[2]/values[3];
-		self.impact = Some(usage + repair + other);	
+		let iu = values[0];
+		let up = values[1];
+		let vu = values[2];
+		let vm = values[3];
+		let ir = values[4];
+		let nr = values[5];
+		let cu = values[6];
+		let na = values[7];
+		
+		let im = iu*(up/100.0)*cu + ir*nr/vm + iu*(1.0-up/100.0)*(vu/vm);
+		
+		self.impact = Some(im);	
+		self.improvement = Some((1.0 - im/(na*iu))*100.0);
 	}
 }
 
