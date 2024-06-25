@@ -1,6 +1,6 @@
 use crate::MaBO;
 use crate::egui;
-use crate::egui::{RichText, Color32, Align};
+use crate::egui::{RichText, Color32, Align, FontId};
 
 
 impl MaBO {
@@ -18,26 +18,23 @@ impl MaBO {
 	pub fn show_main_panel(&mut self, ctx: &egui::Context) {
 		egui::CentralPanel::default().show(ctx, |ui| {
 			egui::ScrollArea::vertical().show(ui, |ui| {
-				ui.label("Scénario de référence (utilisation normale) :");
+				ui.label(RichText::new("Scénario de référence (utilisation normale) :").color(Color32::BLACK).font(FontId::proportional(18.0)));
 				ui.separator();
 				ui.label("");
 				
 				for variable in &mut self.equation.variables {
 				
 					if variable.name == "Vm" {
-						ui.label("Scénario alternatif (utilisation mutualisée) :");
+						ui.label(RichText::new("\nScénario alternatif (utilisation mutualisée) :").color(Color32::BLACK).font(FontId::proportional(18.0)));
 						ui.separator();
 						ui.label("");
 					}
 				
 					ui.label(&format!("{} : ", variable.description));
 					ui.horizontal(|ui| {
-						ui.label(&format!("{} = ", variable.name));
-						ui.add(egui::TextEdit::singleline(&mut variable.input));
+						ui.label(RichText::new(&format!("{} = ", variable.name)).color(Color32::BLACK));
+						ui.add(egui::DragValue::new(&mut variable.value).speed(variable.speed).clamp_range(variable.min..=variable.max));
 					});
-					if variable.value == None {
-						ui.label(RichText::new("valeur invalide").color(Color32::RED));
-					}
 					ui.label("");
 				}
 				
@@ -52,11 +49,13 @@ impl MaBO {
 				
 				
 				if let Some(ref impact) = self.equation.impact {
-					ui.label(format!("\nImpact du produit mutualisé dans la catégorie d'impact choisie, par an :\nIm = {}",impact));
+					ui.label("\nImpact du produit mutualisé dans la catégorie d'impact choisie, par an :");
+					ui.label(RichText::new(format!("Im = {}",impact)).color(Color32::BLACK));
 				}
 				
 				if let Some(ref improvement) = self.equation.improvement {
-					ui.label(format!("\nGain de la mutualisation par rapport à l'utilisation usuelle :\nG% = {} %",improvement));
+					ui.label("\nGain de la mutualisation par rapport à l'utilisation usuelle :");
+					ui.label(RichText::new(format!("G% = {} %",improvement)).color(Color32::BLACK));
 				}
 				
 				ui.label("\n\n");

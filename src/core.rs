@@ -22,31 +22,22 @@ pub fn load_icon() -> Result<egui::IconData, Box<dyn Error>> {
 pub struct Variable {
 	pub name: String,
 	pub description: String,
-	pub input: String,
-	pub value: Option<f32>
+	pub value: f32,
+	pub speed: f32,
+	pub min: f32,
+	pub max: f32,
 }
 
 impl Variable {
-	fn new(name : String, description : String) -> Self {
+	fn new(name: String, description: String, value: f32, speed: f32, min: f32, max: f32) -> Self {
 		Variable {
 			name,
 			description,
-			input: "".to_string(),
-			value: Some(0.0)
+			value,
+			speed,
+			min,
+			max,
 		}
-	}
-	
-	pub fn evaluate(&mut self) -> Option<f32> {
-		match self.input.replace(",", ".").parse::<f32>() {
-			Ok(valid_input) => {
-				self.value = Some(valid_input);
-			}
-			Err(_) => {
-				self.value = None
-			}
-		}
-		
-		self.value
 	}
 }
 
@@ -60,14 +51,14 @@ impl Equation {
 	pub fn new() -> Self {
 		Equation {
 			variables: [
-				Variable::new("Iu".into(), "Impact du produit usuel dans la catégorie d’impact choisie, par an".into()),
-				Variable::new("U%".into(), "% de l’Impact du produit usuel issu de l’utilisation uniquement".into()), 
-				Variable::new("Vu".into(), "Durée de vie du produit usuel (en année)".into()), 
-				Variable::new("Vm".into(), "Durée de vie du produit mutualisé (en année)".into()), 
-				Variable::new("Ir".into(), "Impact moyen d'une réparation du produit dans la catégorie d'impact choisie".into()), 
-				Variable::new("Nr".into(), "Nombre de réparations à effectuer du produit dans la catégorie d'impact choisie".into()), 
-				Variable::new("Cu".into(), "Coefficient d'intensification de l'usage".into()),
-				Variable::new("Na".into(), "Nombre d'achats évité par produit mutualisé".into())
+				Variable::new("Iu".into(), "Impact du produit usuel dans la catégorie d’impact choisie, par an".into(), 0.0, 1.0, 0.0, f32::MAX),
+				Variable::new("U%".into(), "% de l’Impact du produit usuel issu de l’utilisation uniquement".into(), 0.0, 1.0, 0.0, 100.0), 
+				Variable::new("Vu".into(), "Durée de vie du produit usuel (en année)".into(), 0.0, 1.0, 0.0, f32::MAX), 
+				Variable::new("Vm".into(), "Durée de vie du produit mutualisé (en année)".into(), 0.0, 1.0, 0.0, f32::MAX), 
+				Variable::new("Ir".into(), "Impact moyen d'une réparation du produit dans la catégorie d'impact choisie".into(), 0.0, 1.0, 0.0, f32::MAX), 
+				Variable::new("Nr".into(), "Nombre de réparations à effectuer du produit durant sa durée de vie".into(), 0.0, 1.0, 0.0, f32::MAX), 
+				Variable::new("Cu".into(), "Coefficient d'intensification de l'usage".into(), 1.0, 0.1, 1.0, f32::MAX),
+				Variable::new("Na".into(), "Nombre d'achats évité par produit mutualisé".into(), 1.0, 1.0, 1.0, f32::MAX)
 			],
 			impact: None,
 			improvement: None
@@ -75,32 +66,15 @@ impl Equation {
 	}
 	
 	pub fn compute(&mut self) {
-		self.impact = None;
-		self.improvement = None;
 		
-		let mut values: Vec<f32> = vec![];
-		let mut invalid: bool = false;
-		
-		for variable in self.variables.iter_mut() {
-			if let Some(value) = variable.evaluate() {
-				values.push(value);
-			} else {
-				invalid = true;
-			}
-		}
-		
-		if invalid {
-			return;
-		}
-		
-		let iu = values[0];
-		let up = values[1];
-		let vu = values[2];
-		let vm = values[3];
-		let ir = values[4];
-		let nr = values[5];
-		let cu = values[6];
-		let na = values[7];
+		let iu = self.variables[0].value;
+		let up = self.variables[1].value;
+		let vu = self.variables[2].value;
+		let vm = self.variables[3].value;
+		let ir = self.variables[4].value;
+		let nr = self.variables[5].value;
+		let cu = self.variables[6].value;
+		let na = self.variables[7].value;
 		
 		let im = iu*(up/100.0)*cu + ir*nr/vm + iu*(1.0-up/100.0)*(vu/vm);
 		
