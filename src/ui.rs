@@ -4,10 +4,33 @@ use crate::egui::{RichText, Color32, Align, FontId};
 
 
 impl MaBO {
+	pub fn show_credits_panel(&mut self, ctx: &egui::Context) {
+		egui::TopBottomPanel::bottom("credits").show(ctx, |ui| {
+			ui.horizontal(|ui| {
+				ui.label("Outil fait pour ");	
+				ui.hyperlink_to(
+					"MaBO", 
+					"https://www.ma-bo.fr/",
+				);
+				ui.label(", réalisé par BADIOLA Antoine et PINSON Nicolas");
+			});
+		
+		});
+	}
+
 	pub fn show_info_panel(&mut self, ctx: &egui::Context) {
 		egui::SidePanel::left("infos").show(ctx, |ui| {
-			ui.label("Méthodologie");
-			ui.label("Exemple");
+			ui.label("");
+			ui.hyperlink_to(
+				"Méthodologie", 
+				"https://github.com/WanderingPenwing/CaMu/blob/master/docs/Méthodologie%20Générale.pdf",
+			);
+			ui.label("");
+			ui.hyperlink_to(
+				"Exemple Bouilloire", 
+				"https://github.com/WanderingPenwing/CaMu/blob/master/docs/Rapport%20Bouilloire.pdf",
+			);
+			ui.label("");
 			ui.hyperlink_to(
 				"Code source", 
 				"https://github.com/WanderingPenwing/CaMu",

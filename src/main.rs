@@ -52,9 +52,7 @@ impl eframe::App for MaBO {
 		
 		ctx.set_visuals(Visuals::light());
 		
-		egui::TopBottomPanel::bottom("credits").show(ctx, |ui| {
-			ui.label("Outil fait pour MaBO, réalisé par BADIOLA Antoine et PINSON Nicolas");	
-		});
+		self.show_credits_panel(ctx);
 		
 		self.show_info_panel(ctx);
 
