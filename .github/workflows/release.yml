@@ -1,3 +1,13 @@
+permissions:
+  contents: write
+  actions: read
+  checks: write
+  deployments: write
+  issues: write
+  packages: write
+  pull-requests: write
+  statuses: write
+
 on:
   release:
     types: [created]
