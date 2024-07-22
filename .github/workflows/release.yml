@@ -28,6 +28,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev xorg-dev xauth xorg xserver-xorg xvfb
+          sudo apt-get install -y libxcb-shape0-dev libxcb-xfixes0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-render0-dev libxcb-xkb-dev libxkbcommon-x11-dev
+          sudo apt-get install -y build-essential
 
       # Set up virtual display server for Linux
       - name: Start virtual display server
@@ -41,6 +43,17 @@ jobs:
       - name: Verify Xvfb
         run: |
           xdpyinfo -display :0
+
+      # Add a simple GUI test
+      - name: Simple GUI test
+        run: |
+          echo 'use winit::event_loop::EventLoop;' > test.rs
+          echo 'fn main() {' >> test.rs
+          echo '    let event_loop = EventLoop::new();' >> test.rs
+          echo '    println!("Event loop created successfully!");' >> test.rs
+          echo '}' >> test.rs
+          rustc test.rs
+          ./test
 
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.5
