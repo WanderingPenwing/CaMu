@@ -22,10 +22,26 @@ jobs:
         target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl]
     steps:
       - uses: actions/checkout@master
+
+      # Install necessary dependencies
+      - name: Install dependencies
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev xorg-dev xauth xorg xserver-xorg xvfb
+
+      # Set up virtual display server for Linux
+      - name: Start virtual display server
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: |
+          /usr/bin/Xvfb :0 &
+          export DISPLAY=:0
+
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISPLAY: ":0"
         with:
           RUSTTARGET: ${{ matrix.target }}
           EXTRA_FILES: "README.md LICENSE"
