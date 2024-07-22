@@ -19,23 +19,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl]
+        target: [x86_64-unknown-linux-musl]
     steps:
       - uses: actions/checkout@master
 
       # Install necessary dependencies
       - name: Install dependencies
-        if: matrix.target == 'x86_64-unknown-linux-musl'
         run: |
           sudo apt-get update
           sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev xorg-dev xauth xorg xserver-xorg xvfb
 
       # Set up virtual display server for Linux
       - name: Start virtual display server
-        if: matrix.target == 'x86_64-unknown-linux-musl'
         run: |
-          /usr/bin/Xvfb :0 &
+          /usr/bin/Xvfb :0 -screen 0 1024x768x24 &
+          sleep 3 # Give Xvfb some time to start
           export DISPLAY=:0
+          echo "Display set to $DISPLAY"
+
+      # Verify that Xvfb is running
+      - name: Verify Xvfb
+        run: |
+          xdpyinfo -display :0
 
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.5
