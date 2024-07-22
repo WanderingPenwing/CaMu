@@ -44,16 +44,26 @@ jobs:
         run: |
           xdpyinfo -display :0
 
-      # Add a simple GUI test
-      - name: Simple GUI test
+      # Create and test a minimal winit project
+      - name: Create and test minimal winit project
         run: |
-          echo 'use winit::event_loop::EventLoop;' > test.rs
-          echo 'fn main() {' >> test.rs
-          echo '    let event_loop = EventLoop::new();' >> test.rs
-          echo '    println!("Event loop created successfully!");' >> test.rs
-          echo '}' >> test.rs
-          rustc test.rs
-          ./test
+          mkdir test_winit
+          cd test_winit
+          echo '[package]' > Cargo.toml
+          echo 'name = "test_winit"' >> Cargo.toml
+          echo 'version = "0.1.0"' >> Cargo.toml
+          echo 'edition = "2018"' >> Cargo.toml
+          echo '' >> Cargo.toml
+          echo '[dependencies]' >> Cargo.toml
+          echo 'winit = "0.28"' >> Cargo.toml
+          echo '' >> Cargo.toml
+          echo 'use winit::event_loop::EventLoop;' > src/main.rs
+          echo 'fn main() {' >> src/main.rs
+          echo '    let event_loop = EventLoop::new();' >> src/main.rs
+          echo '    println!("Event loop created successfully!");' >> src/main.rs
+          echo '}' >> src/main.rs
+          cargo build
+          cargo run
 
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.5
