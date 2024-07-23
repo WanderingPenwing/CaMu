@@ -31,40 +31,6 @@ jobs:
           sudo apt-get install -y libxcb-shape0-dev libxcb-xfixes0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-render0-dev libxcb-xkb-dev libxkbcommon-x11-dev
           sudo apt-get install -y build-essential
 
-      # Set up virtual display server for Linux
-      - name: Start virtual display server
-        run: |
-          /usr/bin/Xvfb :0 -screen 0 1024x768x24 &
-          sleep 3 # Give Xvfb some time to start
-          export DISPLAY=:0
-          echo "Display set to $DISPLAY"
-
-      # Verify that Xvfb is running
-      - name: Verify Xvfb
-        run: |
-          xdpyinfo -display :0
-
-      # Create and test a minimal winit project
-      - name: Create and test minimal winit project
-        run: |
-          mkdir test_winit
-          cd test_winit
-          echo '[package]' > Cargo.toml
-          echo 'name = "test_winit"' >> Cargo.toml
-          echo 'version = "0.1.0"' >> Cargo.toml
-          echo 'edition = "2018"' >> Cargo.toml
-          echo '' >> Cargo.toml
-          echo '[dependencies]' >> Cargo.toml
-          echo 'winit = "0.28"' >> Cargo.toml
-          echo '' >> Cargo.toml
-          echo 'use winit::event_loop::EventLoop;' > src/main.rs
-          echo 'fn main() {' >> src/main.rs
-          echo '    let event_loop = EventLoop::new();' >> src/main.rs
-          echo '    println!("Event loop created successfully!");' >> src/main.rs
-          echo '}' >> src/main.rs
-          cargo build
-          cargo run
-
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.5
         env:
