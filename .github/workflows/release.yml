@@ -12,69 +12,69 @@ on:
   release:
     types: [created]
 
-  jobs:
-    release:
-      name: release ${{ matrix.target }}
-      runs-on: ubuntu-latest
-      strategy:
-        fail-fast: false
-        matrix:
-          target: 
-            - x86_64-pc-windows-gnu
-            - x86_64-unknown-linux-gnu
-      steps:
-        - uses: actions/checkout@v2
+jobs:
+  release:
+    name: release ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+      target: 
+        - x86_64-pc-windows-gnu
+        - x86_64-unknown-linux-gnu
+    steps:
+      - uses: actions/checkout@v2
 
-        - name: Set up Rust
-          uses: actions-rs/toolchain@v1
-          with:
-            toolchain: stable
-            override: true
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
 
-        - name: Install dependencies
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              libxkbcommon-x11-0 \
-              libglib2.0-dev \
-              libgl1-mesa-dev \
-              libglu1-mesa-dev \
-              libatk1.0-dev \
-              libgdk-pixbuf2.0-dev \
-              libwebkit2gtk-4.0-dev \
-              libgtk-3-dev \
-              build-essential \
-              zip  # Add this line to install zip
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+          libxkbcommon-x11-0 \
+          libglib2.0-dev \
+          libgl1-mesa-dev \
+          libglu1-mesa-dev \
+          libatk1.0-dev \
+          libgdk-pixbuf2.0-dev \
+          libwebkit2gtk-4.0-dev \
+          libgtk-3-dev \
+          build-essential \
+          zip  # Add this line to install zip
   
-        - name: Install target
-          run: rustup target add ${{ matrix.target }}
+      - name: Install target
+        run: rustup target add ${{ matrix.target }}
 
-        - name: Verify installed dependencies
-          run: |
-            ldconfig -p | grep xkbcommon
-            ldconfig -p | grep libGL
-            ldconfig -p | grep libGLU
-            ldconfig -p | grep libatk-1.0.so.0
-            ldconfig -p | grep libgdk_pixbuf-2.0.so.0
-            ldconfig -p | grep libwebkit2gtk-4.0.so.37
-            ldconfig -p | grep libgtk-3.so.0
+      - name: Verify installed dependencies
+        run: |
+          ldconfig -p | grep xkbcommon
+          ldconfig -p | grep libGL
+          ldconfig -p | grep libGLU
+          ldconfig -p | grep libatk-1.0.so.0
+          ldconfig -p | grep libgdk_pixbuf-2.0.so.0
+          ldconfig -p | grep libwebkit2gtk-4.0.so.37
+          ldconfig -p | grep libgtk-3.so.0
 
-        - name: Compile the app
-          run: |
-            echo "Compiling for target: ${{ matrix.target }}"
-            RUST_BACKTRACE=1 cargo build --release --target ${{ matrix.target }}
+      - name: Compile the app
+        run: |
+          echo "Compiling for target: ${{ matrix.target }}"
+          RUST_BACKTRACE=1 cargo build --release --target ${{ matrix.target }}
 
-        - name: Create zip archive
-          run: |
-            release_tag=${{ github.event.release.tag_name }}
-            zip -r camu_${{ matrix.target }}_${release_tag}.zip target/${{ matrix.target }}/release/flow
+      - name: Create zip archive
+        run: |
+          release_tag=${{ github.event.release.tag_name }}
+          zip -r camu_${{ matrix.target }}_${release_tag}.zip target/${{ matrix.target }}/release/flow
 
-        - name: Upload release assets
-          uses: actions/upload-release-asset@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            upload_url: ${{ github.event.release.upload_url }}
-            asset_path: camu_${{ matrix.target }}_${{ github.event.release.tag_name }}.zip
-            asset_name: camu_${{ matrix.target }}_${{ github.event.release.tag_name }}.zip
-            asset_content_type: application/zip
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: camu_${{ matrix.target }}_${{ github.event.release.tag_name }}.zip
+          asset_name: camu_${{ matrix.target }}_${{ github.event.release.tag_name }}.zip
+          asset_content_type: application/zip
