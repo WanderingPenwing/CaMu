@@ -74,7 +74,12 @@ jobs:
       - name: Create zip archive
         run: |
           release_tag=${{ github.event.release.tag_name }}
-          zip -r camu_${{ matrix.target }}_${release_tag}.zip target/${{ matrix.target }}/release/flow
+          zip_file=camu_${{ matrix.target }}_${release_tag}.zip
+          if [ ${{ matrix.target }} = "x86_64-pc-windows-gnu" ]; then
+            zip $zip_file target/${{ matrix.target }}/release/camu.exe
+          elif [ ${{ matrix.target }} = "x86_64-unknown-linux-gnu" ]; then
+            zip $zip_file target/${{ matrix.target }}/release/camu
+          fi
 
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
