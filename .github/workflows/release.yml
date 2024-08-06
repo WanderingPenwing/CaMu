@@ -66,6 +66,11 @@ jobs:
           echo "Compiling for target: ${{ matrix.target }}"
           RUST_BACKTRACE=1 cargo build --release --target ${{ matrix.target }}
 
+      - name: List build artifacts
+        run: |
+          echo "Listing files in target/${{ matrix.target }}/release/"
+          ls -R target/${{ matrix.target }}/release/
+
       - name: Create zip archive
         run: |
           release_tag=${{ github.event.release.tag_name }}
